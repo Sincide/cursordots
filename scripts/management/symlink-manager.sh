@@ -22,17 +22,12 @@ set BACKUP_DIR "$CACHE_DIR/backups/symlinks"
 set SYMLINK_MAPPINGS \
     "hyprland:.config/hyprland" \
     "waybar:.config/waybar" \
-    "terminals/kitty:.config/kitty" \
-    "terminals/foot:.config/foot" \
-    "terminals/fish:.config/fish" \
-    "applications/dunst:.config/dunst" \
-    "applications/fuzzel:.config/fuzzel" \
-    "applications/btop:.config/btop" \
-    "applications/rofi:.config/rofi" \
-    "gtk/gtk-2.0:.config/gtk-2.0" \
-    "gtk/gtk-3.0:.config/gtk-3.0" \
-    "gtk/gtk-4.0:.config/gtk-4.0" \
-    "fonts/fontconfig:.config/fontconfig" \
+    "foot:.config/foot" \
+    "fish:.config/fish" \
+    "dunst:.config/dunst" \
+    "fuzzel:.config/fuzzel" \
+    "btop:.config/btop" \
+    "gtk-3.0:.config/gtk-3.0" \
     "fonts/.fonts:.fonts"
 
 # =============================================================================

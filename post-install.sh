@@ -9,7 +9,7 @@
 # Requirements: Minimal Arch Linux with working internet connection
 # =============================================================================
 
-set -euo pipefail
+set -uo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -119,13 +119,15 @@ install_package_safe() {
     local package="$1"
     local description="$2"
     
+    # Check if package is already installed
     if yay -Q "$package" &>/dev/null; then
         log_info "$package is already installed"
         return 0
     fi
     
+    # Try to install the package
     log_info "Installing $package ($description)..."
-    if yay -S --needed --noconfirm "$package"; then
+    if yay -S --needed --noconfirm "$package" 2>/dev/null; then
         log_success "$package installed successfully"
         return 0
     else
@@ -146,7 +148,7 @@ install_packages_batch() {
     
     for package in "${packages[@]}"; do
         if install_package_safe "$package" "$category"; then
-            ((success_count++))
+            success_count=$((success_count + 1))
         else
             failed_packages+=("$package")
         fi
@@ -157,6 +159,8 @@ install_packages_batch() {
     if [[ ${#failed_packages[@]} -gt 0 ]]; then
         log_warning "Failed packages in $category: ${failed_packages[*]}"
     fi
+    
+    log_success "$category installation completed"
 }
 
 # =============================================================================
