@@ -449,7 +449,7 @@ install_dotfiles() {
     # Install dotfiles using symlink manager
     log_info "Installing dotfiles configuration..."
     if [[ -f "$SCRIPT_DIR/scripts/management/symlink-manager.sh" ]]; then
-        bash "$SCRIPT_DIR/scripts/management/symlink-manager.sh" --install
+        bash "$SCRIPT_DIR/scripts/management/symlink-manager.sh" install --force
     else
         log_warning "Symlink manager script not found, skipping..."
     fi
