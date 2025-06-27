@@ -1,0 +1,305 @@
+# ===========================================
+# Dynamic Theming Dotfiles - .gitignore
+# ===========================================
+
+# Theme Engine Generated Files
+# -----------------------------
+# Cache files from color extraction and LLaVA analysis
+.cache/
+**/cache/
+*.cache
+.theme-cache/
+.color-cache/
+.llava-cache/
+
+# Generated thumbnail files
+**/thumbnails/
+.thumbnails/
+*.thumb
+
+# Temporary theme files
+.tmp-theme/
+temp-theme/
+*.tmp-theme
+
+# Color analysis results (cached)
+color-analysis-*.json
+palette-*.json
+theme-*.json
+
+# Backup Files
+# ------------
+# Theme backups (keep recent ones, ignore older)
+**/.backup-*/
+**/backup-*/
+*.backup
+*.bak
+*~
+
+# Configuration Backups
+**/*.conf.bak
+**/*.ini.bak
+**/*.css.bak
+**/*.template.bak
+
+# Log Files
+# ---------
+# Theme engine logs
+logs/
+*.log
+.logs/
+theme-engine.log
+color-extractor.log
+wallpaper-picker.log
+theme-applier.log
+
+# System logs
+install.log
+post-install.log
+
+# Temporary Files
+# ---------------
+# Shell temporary files
+*.tmp
+.tmp/
+temp/
+.temp/
+
+# Process ID files
+*.pid
+
+# Lock files
+*.lock
+.lock
+
+# Personal/Private Files
+# ----------------------
+# Personal wallpapers (user should add their own)
+**/wallpapers/personal/
+**/wallpapers/private/
+
+# Personal configuration overrides
+personal.conf
+private.conf
+.personal/
+.private/
+
+# API keys or sensitive data
+*.key
+*.secret
+.env.local
+.env.private
+
+# Git-related
+# -----------
+# Git hooks (if any custom ones)
+.git/hooks/*
+!.git/hooks/*.sample
+
+# Editor Files
+# ------------
+# Vim
+*.swp
+*.swo
+*~
+.vimrc.local
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# VSCode/Cursor
+.vscode/
+.cursor/
+*.code-workspace
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Atom
+.atom/
+
+# OS-Specific Files
+# -----------------
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Development/Build Files
+# -----------------------
+# Node.js (if any JS tools are added)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (if any Python tools are added)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Rust (if any Rust tools are added)
+target/
+Cargo.lock
+
+# Go (if any Go tools are added)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Archive Files
+# -------------
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+*.xz
+
+# Fonts (exclude downloaded fonts, include only references)
+fonts/*.ttf
+fonts/*.otf
+fonts/*.woff
+fonts/*.woff2
+# But keep font installation scripts
+!fonts/*.sh
+!fonts/README.md
+
+# Screenshots/Media (optional - user decides)
+# --------------------------------------------
+# Uncomment if you don't want to track screenshots
+# screenshots/
+# *.png
+# *.jpg
+# *.jpeg
+# *.gif
+# *.webp
+# *.mp4
+# *.mkv
+
+# Keep important image files (like documentation)
+!docs/*.png
+!docs/*.jpg
+!docs/*.jpeg
+!docs/*.gif
+!docs/*.webp
+!README-assets/*
+!assets/*
+
+# Package Manager Artifacts
+# --------------------------
+# AUR build files
+*.tar.xz
+pkg/
+src/
+
+# Pacman cache
+*.pkg.tar.xz
+*.pkg.tar.zst
+
+# Testing/Development
+# -------------------
+# Test environments
+test-env/
+.test/
+sandbox/
+
+# Debugging files
+debug.log
+strace.out
+*.debug
+
+# Performance profiling
+*.prof
+perf.data*
+
+# Local Environment
+# -----------------
+# Local configuration overrides
+local.conf
+.local-config
+dev-config/
+
+# User-specific paths
+.user-paths
+.local-paths
+
+# Installation state
+.installed
+.setup-complete
+
+# ===========================================
+# Keep Important Files
+# ===========================================
+# Ensure these are never ignored
+!.gitignore
+!README.md
+!DEVLOG.md
+!post-install.sh
+!scripts/
+!templates/
+!dotfiles/
+!docs/ 
