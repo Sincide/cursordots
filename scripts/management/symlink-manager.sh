@@ -1,4 +1,4 @@
-#!/usr/bin/env fish
+#!/usr/bin/env bash
 
 # =============================================================================
 # Symlink Manager - Dynamic Theming System
@@ -10,434 +10,432 @@
 # =============================================================================
 
 # Set script directory and configuration paths
-set SCRIPT_DIR (dirname (realpath (status --current-filename)))
-set DOTFILES_ROOT (dirname (dirname $SCRIPT_DIR))
-set SOURCE_DIR "$DOTFILES_ROOT/dotfiles"
-set TARGET_HOME $HOME
-set CACHE_DIR "$DOTFILES_ROOT/cache"
-set LOGS_DIR "$CACHE_DIR/logs"
-set BACKUP_DIR "$CACHE_DIR/backups/symlinks"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+DOTFILES_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+SOURCE_DIR="$DOTFILES_ROOT/dotfiles"
+TARGET_HOME="$HOME"
+CACHE_DIR="$DOTFILES_ROOT/cache"
+LOGS_DIR="$CACHE_DIR/logs"
+BACKUP_DIR="$CACHE_DIR/backups/symlinks"
 
 # Symlink mapping configuration
-set SYMLINK_MAPPINGS \
-    "hyprland:.config/hyprland" \
-    "waybar:.config/waybar" \
-    "foot:.config/foot" \
-    "fish:.config/fish" \
-    "dunst:.config/dunst" \
-    "fuzzel:.config/fuzzel" \
-    "btop:.config/btop" \
-    "gtk-3.0:.config/gtk-3.0" \
+SYMLINK_MAPPINGS=(
+    "hyprland:.config/hypr"
+    "waybar:.config/waybar"
+    "foot:.config/foot"
+    "fish:.config/fish"
+    "dunst:.config/dunst"
+    "fuzzel:.config/fuzzel"
+    "btop:.config/btop"
+    "gtk-3.0:.config/gtk-3.0"
     "fonts/.fonts:.fonts"
+)
 
 # =============================================================================
 # Utility Functions
 # =============================================================================
 
-function log_info
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >&2
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >> "$LOGS_DIR/symlink-manager.log"
-end
+log_info() {
+    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
+    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*" >> "$LOGS_DIR/symlink-manager.log"
+}
 
-function log_error
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >&2
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >> "$LOGS_DIR/symlink-manager.log"
-end
+log_error() {
+    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
+    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $*" >> "$LOGS_DIR/symlink-manager.log"
+}
 
-function log_debug
-    if test "$DEBUG" = "1"
-        echo "[DEBUG] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >&2
-        echo "[DEBUG] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >> "$LOGS_DIR/symlink-manager.log"
-    end
-end
+log_debug() {
+    if [[ "$DEBUG" == "1" ]]; then
+        echo "[DEBUG] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
+        echo "[DEBUG] $(date '+%Y-%m-%d %H:%M:%S') - $*" >> "$LOGS_DIR/symlink-manager.log"
+    fi
+}
 
-function log_success
-    echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >&2
-    echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >> "$LOGS_DIR/symlink-manager.log"
-end
+log_success() {
+    echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
+    echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $*" >> "$LOGS_DIR/symlink-manager.log"
+}
 
-function log_warning
-    echo "[WARNING] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >&2
-    echo "[WARNING] $(date '+%Y-%m-%d %H:%M:%S') - $argv" >> "$LOGS_DIR/symlink-manager.log"
-end
+log_warning() {
+    echo "[WARNING] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
+    echo "[WARNING] $(date '+%Y-%m-%d %H:%M:%S') - $*" >> "$LOGS_DIR/symlink-manager.log"
+}
 
 # =============================================================================
 # Dependency Checking
 # =============================================================================
 
-function check_dependencies
-    set required_tools find ln readlink dirname basename
-    set missing_tools
+check_dependencies() {
+    local required_tools=(find ln readlink dirname basename)
+    local missing_tools=()
     
-    for tool in $required_tools
-        if not command -v $tool > /dev/null 2>&1
-            set missing_tools $missing_tools $tool
-        end
-    end
+    for tool in "${required_tools[@]}"; do
+        if ! command -v "$tool" > /dev/null 2>&1; then
+            missing_tools+=("$tool")
+        fi
+    done
     
-    if test (count $missing_tools) -gt 0
-        log_error "Missing required tools: $missing_tools"
+    if [[ ${#missing_tools[@]} -gt 0 ]]; then
+        log_error "Missing required tools: ${missing_tools[*]}"
         return 1
-    end
+    fi
     
     # Check for optional stow
-    if command -v stow > /dev/null 2>&1
+    if command -v stow > /dev/null 2>&1; then
         log_debug "GNU Stow is available"
-        set -g STOW_AVAILABLE true
+        STOW_AVAILABLE=true
     else
         log_debug "GNU Stow not available, using manual symlink management"
-        set -g STOW_AVAILABLE false
-    end
+        STOW_AVAILABLE=false
+    fi
     
     log_debug "All dependencies satisfied"
     return 0
-end
+}
 
 # =============================================================================
 # Backup Management
 # =============================================================================
 
-function create_backup_timestamp
+create_backup_timestamp() {
     date '+%Y%m%d_%H%M%S'
-end
+}
 
-function backup_existing_file
-    set target_path $argv[1]
-    set backup_timestamp $argv[2]
+backup_existing_file() {
+    local target_path="$1"
+    local backup_timestamp="$2"
     
-    if not test -e "$target_path"
+    if [[ ! -e "$target_path" ]]; then
         return 0
-    end
+    fi
     
-    set backup_dir "$BACKUP_DIR/$backup_timestamp"
+    local backup_dir="$BACKUP_DIR/$backup_timestamp"
     mkdir -p "$backup_dir"
     
     # Create relative path structure in backup
-    set relative_path (string replace "$TARGET_HOME/" "" "$target_path")
-    set backup_target "$backup_dir/$relative_path"
-    set backup_parent (dirname "$backup_target")
+    local relative_path="${target_path#$TARGET_HOME/}"
+    local backup_target="$backup_dir/$relative_path"
+    local backup_parent="$(dirname "$backup_target")"
     
     mkdir -p "$backup_parent"
     
-    if test -L "$target_path"
+    if [[ -L "$target_path" ]]; then
         # Backup symlink information
-        set link_target (readlink "$target_path")
+        local link_target="$(readlink "$target_path")"
         echo "$link_target" > "$backup_target.symlink"
         log_debug "Backed up symlink: $target_path -> $link_target"
     else
         # Backup actual file/directory
         cp -r "$target_path" "$backup_target" 2>/dev/null
         log_debug "Backed up file: $target_path -> $backup_target"
-    end
-end
+    fi
+}
 
-function restore_from_backup
-    set backup_timestamp $argv[1]
-    set backup_dir "$BACKUP_DIR/$backup_timestamp"
+restore_from_backup() {
+    local backup_timestamp="$1"
+    local backup_dir="$BACKUP_DIR/$backup_timestamp"
     
-    if not test -d "$backup_dir"
+    if [[ ! -d "$backup_dir" ]]; then
         log_error "Backup directory not found: $backup_dir"
         return 1
-    end
+    fi
     
     log_info "Restoring from backup: $backup_timestamp"
     
     # Find all backed up items
-    for backup_item in (find "$backup_dir" -type f -o -type d | grep -v '\.symlink$')
-        set relative_path (string replace "$backup_dir/" "" "$backup_item")
-        set restore_target "$TARGET_HOME/$relative_path"
+    while IFS= read -r -d '' backup_item; do
+        [[ "$backup_item" == *.symlink ]] && continue
+        
+        local relative_path="${backup_item#$backup_dir/}"
+        local restore_target="$TARGET_HOME/$relative_path"
         
         # Remove current symlink/file if exists
-        if test -e "$restore_target" -o -L "$restore_target"
+        if [[ -e "$restore_target" || -L "$restore_target" ]]; then
             rm -rf "$restore_target"
-        end
+        fi
         
         # Create parent directory
-        set restore_parent (dirname "$restore_target")
+        local restore_parent="$(dirname "$restore_target")"
         mkdir -p "$restore_parent"
         
         # Restore file/directory
         cp -r "$backup_item" "$restore_target"
         log_debug "Restored: $backup_item -> $restore_target"
-    end
+    done < <(find "$backup_dir" \( -type f -o -type d \) -print0)
     
     # Restore symlinks
-    for symlink_file in (find "$backup_dir" -name "*.symlink")
-        set relative_path (string replace "$backup_dir/" "" "$symlink_file")
-        set relative_path (string replace ".symlink" "" "$relative_path")
-        set target_path "$TARGET_HOME/$relative_path"
-        set link_target (cat "$symlink_file")
+    while IFS= read -r -d '' symlink_file; do
+        local relative_path="${symlink_file#$backup_dir/}"
+        relative_path="${relative_path%.symlink}"
+        local target_path="$TARGET_HOME/$relative_path"
+        local link_target="$(cat "$symlink_file")"
         
         # Remove current file if exists
-        if test -e "$target_path" -o -L "$target_path"
+        if [[ -e "$target_path" || -L "$target_path" ]]; then
             rm -rf "$target_path"
-        end
+        fi
         
         # Create parent directory
-        set target_parent (dirname "$target_path")
+        local target_parent="$(dirname "$target_path")"
         mkdir -p "$target_parent"
         
         # Restore symlink
         ln -s "$link_target" "$target_path"
         log_debug "Restored symlink: $target_path -> $link_target"
-    end
+    done < <(find "$backup_dir" -name "*.symlink" -print0)
     
     log_success "Restore completed from backup: $backup_timestamp"
-end
+}
 
 # =============================================================================
 # Symlink Operations
 # =============================================================================
 
-function create_symlink
-    set source_path $argv[1]
-    set target_path $argv[2]
-    set force $argv[3]
-    set dry_run $argv[4]
+create_symlink() {
+    local source_path="$1"
+    local target_path="$2"
+    local force="$3"
+    local dry_run="$4"
     
     log_debug "Creating symlink: $source_path -> $target_path"
     
     # Check if source exists
-    if not test -e "$source_path"
-        log_error "Source path does not exist: $source_path"
+    if [[ ! -e "$source_path" ]]; then
+        log_error "Source does not exist: $source_path"
         return 1
-    end
+    fi
     
-    # Create target directory
-    set target_dir (dirname "$target_path")
-    if test "$dry_run" != true
-        mkdir -p "$target_dir"
+    # Create parent directory for target
+    local target_parent="$(dirname "$target_path")"
+    if [[ "$dry_run" != "true" ]]; then
+        mkdir -p "$target_parent"
     else
-        log_info "DRY RUN: Would create directory: $target_dir"
-    end
+        log_debug "[DRY-RUN] Would create directory: $target_parent"
+    fi
     
     # Handle existing target
-    if test -e "$target_path" -o -L "$target_path"
-        if test -L "$target_path"
-            set existing_target (readlink "$target_path")
-            if test "$existing_target" = "$source_path"
-                log_debug "Symlink already exists and points to correct target: $target_path"
-                return 0
-            end
-        end
-        
-        if test "$force" != true
-            log_warning "Target already exists: $target_path"
-            return 1
-        else
-            if test "$dry_run" != true
+    if [[ -e "$target_path" || -L "$target_path" ]]; then
+        if [[ "$force" == "true" ]]; then
+            log_debug "Forcing removal of existing target: $target_path"
+            if [[ "$dry_run" != "true" ]]; then
                 rm -rf "$target_path"
-                log_debug "Removed existing target: $target_path"
             else
-                log_info "DRY RUN: Would remove existing target: $target_path"
-            end
-        end
-    end
+                log_debug "[DRY-RUN] Would remove: $target_path"
+            fi
+        else
+            log_error "Target already exists: $target_path (use --force to overwrite)"
+            return 1
+        fi
+    fi
     
     # Create symlink
-    if test "$dry_run" != true
-        if ln -s "$source_path" "$target_path"
-            log_debug "Created symlink: $target_path -> $source_path"
+    if [[ "$dry_run" != "true" ]]; then
+        if ln -s "$source_path" "$target_path"; then
+            log_success "Created symlink: $target_path -> $source_path"
             return 0
         else
             log_error "Failed to create symlink: $target_path -> $source_path"
             return 1
-        end
+        fi
     else
-        log_info "DRY RUN: Would create symlink: $target_path -> $source_path"
+        log_debug "[DRY-RUN] Would create symlink: $target_path -> $source_path"
         return 0
-    end
-end
+    fi
+}
 
-function remove_symlink
-    set target_path $argv[1]
-    set dry_run $argv[2]
+remove_symlink() {
+    local target_path="$1"
+    local dry_run="$2"
     
-    if not test -L "$target_path"
-        log_debug "Target is not a symlink: $target_path"
-        return 0
-    end
+    log_debug "Removing symlink: $target_path"
     
-    if test "$dry_run" != true
-        if rm "$target_path"
-            log_debug "Removed symlink: $target_path"
+    if [[ ! -L "$target_path" ]]; then
+        if [[ -e "$target_path" ]]; then
+            log_warning "Target exists but is not a symlink: $target_path"
+            return 1
+        else
+            log_debug "Target does not exist: $target_path"
+            return 0
+        fi
+    fi
+    
+    if [[ "$dry_run" != "true" ]]; then
+        if rm "$target_path"; then
+            log_success "Removed symlink: $target_path"
             return 0
         else
             log_error "Failed to remove symlink: $target_path"
             return 1
-        end
+        fi
     else
-        log_info "DRY RUN: Would remove symlink: $target_path"
+        log_debug "[DRY-RUN] Would remove symlink: $target_path"
         return 0
-    end
-end
+    fi
+}
 
 # =============================================================================
 # Stow Integration
 # =============================================================================
 
-function install_with_stow
-    set force $argv[1]
-    set dry_run $argv[2]
+install_with_stow() {
+    local force="$1"
+    local dry_run="$2"
     
-    log_info "Installing dotfiles using GNU Stow"
+    log_info "Installing dotfiles with GNU Stow"
     
-    set stow_args --target="$TARGET_HOME" --dir="$DOTFILES_ROOT"
+    local stow_args=()
+    [[ "$force" == "true" ]] && stow_args+=("--restow")
+    [[ "$dry_run" == "true" ]] && stow_args+=("--simulate")
     
-    if test "$force" = true
-        set stow_args $stow_args --restow
-    end
+    cd "$DOTFILES_ROOT" || {
+        log_error "Failed to change to dotfiles directory: $DOTFILES_ROOT"
+        return 1
+    }
     
-    if test "$dry_run" = true
-        set stow_args $stow_args --simulate
-    end
-    
-    if test "$DEBUG" = "1"
-        set stow_args $stow_args --verbose
-    end
-    
-    # Stow the dotfiles directory
-    if stow $stow_args dotfiles
-        log_success "Stow installation completed"
+    if stow "${stow_args[@]}" --target="$TARGET_HOME" dotfiles; then
+        log_success "Successfully installed dotfiles with Stow"
         return 0
     else
-        log_error "Stow installation failed"
+        log_error "Failed to install dotfiles with Stow"
         return 1
-    end
-end
+    fi
+}
 
-function uninstall_with_stow
-    set dry_run $argv[1]
+uninstall_with_stow() {
+    local dry_run="$1"
     
-    log_info "Uninstalling dotfiles using GNU Stow"
+    log_info "Uninstalling dotfiles with GNU Stow"
     
-    set stow_args --target="$TARGET_HOME" --dir="$DOTFILES_ROOT" --delete
+    local stow_args=("--delete")
+    [[ "$dry_run" == "true" ]] && stow_args+=("--simulate")
     
-    if test "$dry_run" = true
-        set stow_args $stow_args --simulate
-    end
+    cd "$DOTFILES_ROOT" || {
+        log_error "Failed to change to dotfiles directory: $DOTFILES_ROOT"
+        return 1
+    }
     
-    if test "$DEBUG" = "1"
-        set stow_args $stow_args --verbose
-    end
-    
-    # Unstow the dotfiles directory
-    if stow $stow_args dotfiles
-        log_success "Stow uninstallation completed"
+    if stow "${stow_args[@]}" --target="$TARGET_HOME" dotfiles; then
+        log_success "Successfully uninstalled dotfiles with Stow"
         return 0
     else
-        log_error "Stow uninstallation failed"
+        log_error "Failed to uninstall dotfiles with Stow"
         return 1
-    end
-end
+    fi
+}
 
 # =============================================================================
 # Manual Symlink Management
 # =============================================================================
 
-function install_symlinks_manual
-    set force $argv[1]
-    set dry_run $argv[2]
-    set backup_timestamp $argv[3]
+install_symlinks_manual() {
+    local force="$1"
+    local dry_run="$2"
+    local backup_timestamp="$3"
     
-    log_info "Installing symlinks manually"
+    log_info "Installing dotfiles with manual symlink management"
     
-    set success_count 0
-    set failed_count 0
+    local success_count=0
+    local error_count=0
     
-    for mapping in $SYMLINK_MAPPINGS
-        set source_rel (echo $mapping | cut -d':' -f1)
-        set target_rel (echo $mapping | cut -d':' -f2)
+    for mapping in "${SYMLINK_MAPPINGS[@]}"; do
+        local source_rel="${mapping%%:*}"
+        local target_rel="${mapping##*:}"
         
-        set source_path "$SOURCE_DIR/$source_rel"
-        set target_path "$TARGET_HOME/$target_rel"
+        local source_path="$SOURCE_DIR/$source_rel"
+        local target_path="$TARGET_HOME/$target_rel"
         
-        # Backup existing file if needed
-        if test "$dry_run" != true -a "$force" = true
-            backup_existing_file "$target_path" $backup_timestamp
-        end
+        log_debug "Processing mapping: $source_rel -> $target_rel"
         
-        # Create symlink
-        if create_symlink "$source_path" "$target_path" $force $dry_run
-            set success_count (math $success_count + 1)
+        # Backup existing file if not dry run
+        if [[ "$dry_run" != "true" ]]; then
+            backup_existing_file "$target_path" "$backup_timestamp"
+        fi
+        
+        if create_symlink "$source_path" "$target_path" "$force" "$dry_run"; then
+            ((success_count++))
         else
-            set failed_count (math $failed_count + 1)
-        end
-    end
+            ((error_count++))
+        fi
+    done
     
-    log_info "Manual symlink installation: $success_count successful, $failed_count failed"
+    log_info "Installation completed: $success_count successful, $error_count failed"
     
-    if test $failed_count -gt 0
+    if [[ $error_count -gt 0 ]]; then
         return 1
-    end
+    fi
     
     return 0
-end
+}
 
-function uninstall_symlinks_manual
-    set dry_run $argv[1]
+uninstall_symlinks_manual() {
+    local dry_run="$1"
     
-    log_info "Uninstalling symlinks manually"
+    log_info "Uninstalling dotfiles with manual symlink management"
     
-    set success_count 0
-    set failed_count 0
+    local success_count=0
+    local error_count=0
     
-    for mapping in $SYMLINK_MAPPINGS
-        set target_rel (echo $mapping | cut -d':' -f2)
-        set target_path "$TARGET_HOME/$target_rel"
+    for mapping in "${SYMLINK_MAPPINGS[@]}"; do
+        local source_rel="${mapping%%:*}"
+        local target_rel="${mapping##*:}"
         
-        if remove_symlink "$target_path" $dry_run
-            set success_count (math $success_count + 1)
+        local target_path="$TARGET_HOME/$target_rel"
+        
+        log_debug "Processing removal: $target_rel"
+        
+        if remove_symlink "$target_path" "$dry_run"; then
+            ((success_count++))
         else
-            set failed_count (math $failed_count + 1)
-        end
-    end
+            ((error_count++))
+        fi
+    done
     
-    log_info "Manual symlink uninstallation: $success_count successful, $failed_count failed"
+    log_info "Uninstallation completed: $success_count successful, $error_count failed"
     
-    if test $failed_count -gt 0
+    if [[ $error_count -gt 0 ]]; then
         return 1
-    end
+    fi
     
     return 0
-end
+}
 
 # =============================================================================
 # Status Checking
 # =============================================================================
 
-function check_symlink_status
+check_symlink_status() {
     log_info "Checking symlink status"
     
-    set installed_count 0
-    set broken_count 0
-    set missing_count 0
-    set conflict_count 0
+    local installed_count=0
+    local broken_count=0
+    local missing_count=0
+    local conflict_count=0
     
-    for mapping in $SYMLINK_MAPPINGS
-        set source_rel (echo $mapping | cut -d':' -f1)
-        set target_rel (echo $mapping | cut -d':' -f2)
+    for mapping in "${SYMLINK_MAPPINGS[@]}"; do
+        local source_rel="${mapping%%:*}"
+        local target_rel="${mapping##*:}"
         
-        set source_path "$SOURCE_DIR/$source_rel"
-        set target_path "$TARGET_HOME/$target_rel"
+        local source_path="$SOURCE_DIR/$source_rel"
+        local target_path="$TARGET_HOME/$target_rel"
         
-        if test -L "$target_path"
-            set link_target (readlink "$target_path")
-            if test "$link_target" = "$source_path"
+        if [[ -L "$target_path" ]]; then
+            local link_target="$(readlink "$target_path")"
+            if [[ "$link_target" == "$source_path" ]]; then
                 echo "✓ $target_rel -> $source_rel"
-                set installed_count (math $installed_count + 1)
+                ((installed_count++))
             else
                 echo "✗ $target_rel -> $link_target (expected: $source_rel)"
-                set broken_count (math $broken_count + 1)
-            end
-        else if test -e "$target_path"
+                ((broken_count++))
+            fi
+        elif [[ -e "$target_path" ]]; then
             echo "! $target_rel exists but is not a symlink"
-            set conflict_count (math $conflict_count + 1)
+            ((conflict_count++))
         else
             echo "- $target_rel not installed"
-            set missing_count (math $missing_count + 1)
-        end
-    end
+            ((missing_count++))
+        fi
+    done
     
     echo ""
     echo "Status Summary:"
@@ -446,100 +444,104 @@ function check_symlink_status
     echo "  Broken: $broken_count"
     echo "  Conflicts: $conflict_count"
     
-    if test $broken_count -gt 0 -o $conflict_count -gt 0
+    if [[ $broken_count -gt 0 || $conflict_count -gt 0 ]]; then
         return 1
-    end
+    fi
     
     return 0
-end
+}
 
 # =============================================================================
 # Main Operations
 # =============================================================================
 
-function install_dotfiles
-    set force $argv[1]
-    set dry_run $argv[2]
+install_dotfiles() {
+    local force="$1"
+    local dry_run="$2"
     
     log_info "Installing dotfiles"
     
     # Create backup timestamp for manual method
-    set backup_timestamp (create_backup_timestamp)
+    local backup_timestamp="$(create_backup_timestamp)"
     
     # Use Stow if available, otherwise manual
-    if test "$STOW_AVAILABLE" = true
-        install_with_stow $force $dry_run
+    if [[ "$STOW_AVAILABLE" == "true" ]]; then
+        install_with_stow "$force" "$dry_run"
     else
-        install_symlinks_manual $force $dry_run $backup_timestamp
-    end
+        install_symlinks_manual "$force" "$dry_run" "$backup_timestamp"
+    fi
     
-    return $status
-end
+    return $?
+}
 
-function uninstall_dotfiles
-    set dry_run $argv[1]
+uninstall_dotfiles() {
+    local dry_run="$1"
     
     log_info "Uninstalling dotfiles"
     
     # Use Stow if available, otherwise manual
-    if test "$STOW_AVAILABLE" = true
-        uninstall_with_stow $dry_run
+    if [[ "$STOW_AVAILABLE" == "true" ]]; then
+        uninstall_with_stow "$dry_run"
     else
-        uninstall_symlinks_manual $dry_run
-    end
+        uninstall_symlinks_manual "$dry_run"
+    fi
     
-    return $status
-end
+    return $?
+}
 
-function update_dotfiles
-    set force $argv[1]
-    set dry_run $argv[2]
+update_dotfiles() {
+    local force="$1"
+    local dry_run="$2"
     
     log_info "Updating dotfiles (reinstalling)"
     
     # Uninstall first, then install
-    if uninstall_dotfiles $dry_run
-        install_dotfiles $force $dry_run
-        return $status
+    if uninstall_dotfiles "$dry_run"; then
+        install_dotfiles "$force" "$dry_run"
+        return $?
     else
         log_error "Failed to uninstall before update"
         return 1
-    end
-end
+    fi
+}
 
 # =============================================================================
 # Setup and Main Function
 # =============================================================================
 
-function setup_directories
-    mkdir -p $LOGS_DIR
-    mkdir -p $BACKUP_DIR
+setup_directories() {
+    mkdir -p "$LOGS_DIR"
+    mkdir -p "$BACKUP_DIR"
     touch "$LOGS_DIR/symlink-manager.log"
-end
+}
 
-function main
-    set operation ""
-    set force false
-    set dry_run false
+main() {
+    local operation=""
+    local force=false
+    local dry_run=false
     
     # Parse command line arguments
-    for arg in $argv
-        switch $arg
-            case install uninstall status update
-                if test -z "$operation"
-                    set operation $arg
+    for arg in "$@"; do
+        case "$arg" in
+            install|uninstall|status|update)
+                if [[ -z "$operation" ]]; then
+                    operation="$arg"
                 else
                     log_error "Multiple operations specified"
                     return 1
-                end
-            case --force -f
-                set force true
-            case --dry-run -n
-                set dry_run true
-            case --debug
-                set DEBUG 1
-            case --help -h
-                echo "Usage: $argv[0] <operation> [--force] [--dry-run] [--debug] [--help]"
+                fi
+                ;;
+            --force|-f)
+                force=true
+                ;;
+            --dry-run|-n)
+                dry_run=true
+                ;;
+            --debug)
+                DEBUG=1
+                ;;
+            --help|-h)
+                echo "Usage: $(basename "$0") <operation> [--force] [--dry-run] [--debug] [--help]"
                 echo ""
                 echo "Manage symlinks for dotfiles deployment"
                 echo ""
@@ -555,52 +557,60 @@ function main
                 echo "  --debug              Enable debug logging"
                 echo "  --help               Show this help message"
                 return 0
-            case -*
+                ;;
+            -*)
                 log_error "Unknown option: $arg"
                 return 1
-            case '*'
-                if test -z "$operation"
-                    set operation $arg
+                ;;
+            *)
+                if [[ -z "$operation" ]]; then
+                    operation="$arg"
                 else
                     log_error "Extra argument: $arg"
                     return 1
-                end
-        end
-    end
+                fi
+                ;;
+        esac
+    done
     
     # Validate operation
-    if test -z "$operation"
+    if [[ -z "$operation" ]]; then
         log_error "No operation specified"
-        echo "Usage: $argv[0] <operation> [options]"
+        echo "Usage: $(basename "$0") <operation> [options]"
         echo "Use --help for more information"
         return 1
-    end
+    fi
     
     # Check dependencies
-    if not check_dependencies
+    if ! check_dependencies; then
         return 1
-    end
+    fi
     
     # Setup directories
     setup_directories
     
     # Execute operation
-    switch $operation
-        case install
-            install_dotfiles $force $dry_run
-        case uninstall
-            uninstall_dotfiles $dry_run
-        case status
+    case "$operation" in
+        install)
+            install_dotfiles "$force" "$dry_run"
+            ;;
+        uninstall)
+            uninstall_dotfiles "$dry_run"
+            ;;
+        status)
             check_symlink_status
-        case update
-            update_dotfiles $force $dry_run
-        case '*'
+            ;;
+        update)
+            update_dotfiles "$force" "$dry_run"
+            ;;
+        *)
             log_error "Unknown operation: $operation"
             return 1
-    end
+            ;;
+    esac
     
-    return $status
-end
+    return $?
+}
 
 # Execute main function with all arguments
-main $argv 
+main "$@" 
