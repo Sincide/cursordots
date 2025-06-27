@@ -104,7 +104,6 @@ install_base_packages() {
         # Display and graphics
         wayland
         wayland-protocols
-        wlroots
         
         # Audio
         pipewire
