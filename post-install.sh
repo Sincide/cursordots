@@ -69,7 +69,37 @@ check_internet() {
 }
 
 # =============================================================================
-# System Update and Base Packages
+# AUR Helper Installation (First Priority)
+# =============================================================================
+
+install_yay_first() {
+    log_header "Installing AUR Helper (yay)"
+    
+    # Check if yay is already installed
+    if command -v yay &> /dev/null; then
+        log_info "yay is already installed"
+        return 0
+    fi
+    
+    log_info "Installing yay AUR helper..."
+    
+    # Install base-devel and git first with pacman (essential for building)
+    sudo pacman -S --needed --noconfirm base-devel git
+    
+    # Clone and build yay
+    local temp_dir="/tmp/yay-install"
+    rm -rf "$temp_dir"
+    git clone https://aur.archlinux.org/yay.git "$temp_dir"
+    cd "$temp_dir"
+    makepkg -si --noconfirm
+    cd - > /dev/null
+    rm -rf "$temp_dir"
+    
+    log_success "yay installed successfully"
+}
+
+# =============================================================================
+# System Update
 # =============================================================================
 
 update_system() {
@@ -81,13 +111,61 @@ update_system() {
     log_success "System updated successfully"
 }
 
-install_base_packages() {
-    log_header "Installing Base Packages"
+# =============================================================================
+# Package Installation Functions with Error Handling
+# =============================================================================
+
+install_package_safe() {
+    local package="$1"
+    local description="$2"
     
-    local base_packages=(
+    if yay -Q "$package" &>/dev/null; then
+        log_info "$package is already installed"
+        return 0
+    fi
+    
+    log_info "Installing $package ($description)..."
+    if yay -S --needed --noconfirm "$package"; then
+        log_success "$package installed successfully"
+        return 0
+    else
+        log_warning "Failed to install $package - continuing anyway"
+        return 1
+    fi
+}
+
+install_packages_batch() {
+    local category="$1"
+    shift
+    local packages=("$@")
+    
+    log_header "Installing $category"
+    
+    local failed_packages=()
+    local success_count=0
+    
+    for package in "${packages[@]}"; do
+        if install_package_safe "$package" "$category"; then
+            ((success_count++))
+        else
+            failed_packages+=("$package")
+        fi
+    done
+    
+    log_info "$category: $success_count/${#packages[@]} packages installed successfully"
+    
+    if [[ ${#failed_packages[@]} -gt 0 ]]; then
+        log_warning "Failed packages in $category: ${failed_packages[*]}"
+    fi
+}
+
+# =============================================================================
+# System Packages Installation
+# =============================================================================
+
+install_essential_packages() {
+    local essential_packages=(
         # System essentials
-        base-devel
-        git
         wget
         curl
         unzip
@@ -162,19 +240,14 @@ install_base_packages() {
         p7zip
     )
     
-    log_info "Installing base packages..."
-    sudo pacman -S --needed --noconfirm "${base_packages[@]}"
-    
-    log_success "Base packages installed successfully"
+    install_packages_batch "Essential Packages" "${essential_packages[@]}"
 }
 
 # =============================================================================
-# Wayland Compositing and Applications
+# Wayland Applications Installation
 # =============================================================================
 
 install_wayland_apps() {
-    log_header "Installing Wayland Applications"
-    
     local wayland_apps=(
         # Status bar
         waybar
@@ -188,7 +261,7 @@ install_wayland_apps() {
         # Wallpaper
         swww
         
-        # Lock screen
+        # Lock screen (AUR package)
         swaylock-effects
         
         # Idle management  
@@ -201,10 +274,7 @@ install_wayland_apps() {
         imv
     )
     
-    log_info "Installing Wayland applications..."
-    sudo pacman -S --needed --noconfirm "${wayland_apps[@]}"
-    
-    log_success "Wayland applications installed successfully"
+    install_packages_batch "Wayland Applications" "${wayland_apps[@]}"
 }
 
 # =============================================================================
@@ -426,35 +496,18 @@ install_default_wallpapers() {
 }
 
 # =============================================================================
-# AUR Helper and Package UI Installation
+# Additional AUR Packages and Package UI Installation
 # =============================================================================
 
-install_aur_helper() {
-    log_header "Installing AUR Helper and Package UI"
+install_additional_packages() {
+    log_header "Installing Additional Packages and Package UI"
     
-    # Install yay AUR helper (mandatory)
-    if command -v yay &> /dev/null; then
-        log_info "AUR helper (yay) already installed"
-    else
-        log_info "Installing yay AUR helper..."
-        
-        # Clone and build yay
-        cd /tmp
-        git clone https://aur.archlinux.org/yay-bin.git
-        cd yay-bin
-        makepkg -si --noconfirm
-        cd "$SCRIPT_DIR"
-        
-        log_success "yay AUR helper installed successfully"
-    fi
-    
-    # Install some useful AUR packages with yay
+    # Install some useful AUR packages
     local aur_packages=(
         "starship"  # Better shell prompt
     )
     
-    log_info "Installing useful AUR packages..."
-    yay -S --noconfirm "${aur_packages[@]}" || log_warning "Some AUR packages failed to install"
+    install_packages_batch "Additional AUR Packages" "${aur_packages[@]}"
     
     # Install pacui (package manager UI) from source
     if command -v pacui &> /dev/null; then
@@ -463,16 +516,18 @@ install_aur_helper() {
         log_info "Installing pacui from source..."
         
         # Clone pacui repository
-        cd /tmp
-        git clone https://github.com/excalibur1234/pacui.git
-        cd pacui
+        local temp_dir="/tmp/pacui-install"
+        rm -rf "$temp_dir"
+        git clone https://github.com/excalibur1234/pacui.git "$temp_dir"
+        cd "$temp_dir"
         
         # Install pacui
         sudo install -Dm755 pacui /usr/bin/pacui
         sudo install -Dm644 pacui.desktop /usr/share/applications/pacui.desktop
         sudo install -Dm644 README.md /usr/share/doc/pacui/README.md
         
-        cd "$SCRIPT_DIR"
+        cd - > /dev/null
+        rm -rf "$temp_dir"
         
         log_success "pacui installed successfully"
     fi
@@ -485,7 +540,7 @@ install_aur_helper() {
 install_firefox() {
     log_header "Installing and Configuring Firefox"
     
-    sudo pacman -S --needed --noconfirm firefox
+    install_package_safe "firefox" "Web Browser"
     
     # Set Firefox as default browser (check if already set)
     current_browser=$(xdg-settings get default-web-browser 2>/dev/null || echo "")
@@ -496,7 +551,7 @@ install_firefox() {
         log_info "Firefox is already the default browser"
     fi
     
-    log_success "Firefox installed and configured"
+    log_success "Firefox installation and configuration completed"
 }
 
 # =============================================================================
@@ -630,12 +685,12 @@ show_summary() {
 # =============================================================================
 
 cleanup_on_error() {
-    log_error "Installation failed. Cleaning up..."
+    log_error "Installation encountered errors but will continue..."
     # Add any cleanup commands here if needed
-    exit 1
+    return 1
 }
 
-trap cleanup_on_error ERR
+# Note: No error trap - we want to continue even if some packages fail
 
 # =============================================================================
 # Main Installation Process
@@ -666,7 +721,8 @@ main() {
     check_internet
     
     update_system
-    install_base_packages
+    install_yay_first
+    install_essential_packages
     install_wayland_apps
     install_ai_dependencies
     configure_services
@@ -674,7 +730,7 @@ main() {
     install_dotfiles
     install_default_wallpapers
     install_firefox
-    install_aur_helper
+    install_additional_packages
     final_configuration
     
     show_summary
