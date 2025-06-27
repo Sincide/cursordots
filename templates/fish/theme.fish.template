@@ -1,0 +1,41 @@
+# =============================================================================
+# Fish Shell Theme Template - Dynamic Theming
+# =============================================================================
+# Description: Fish shell theming variables only
+# Author: Dotfiles Dynamic Theming System
+# Usage: Source this in main fish config
+# =============================================================================
+
+# Set theme colors for fish shell prompt and syntax highlighting
+set -g fish_color_normal {{TEXT_PRIMARY}}
+set -g fish_color_command {{SECONDARY_COLOR}}
+set -g fish_color_keyword {{PRIMARY_COLOR}}
+set -g fish_color_quote {{SUCCESS_COLOR}}
+set -g fish_color_redirection {{ACCENT_COLOR}}
+set -g fish_color_end {{WARNING_COLOR}}
+set -g fish_color_comment {{TEXT_DISABLED}}
+set -g fish_color_error {{ERROR_COLOR}}
+set -g fish_color_param {{TEXT_PRIMARY}}
+set -g fish_color_selection --background={{SURFACE_COLOR}}
+set -g fish_color_search_match --background={{ACCENT_COLOR}}
+set -g fish_color_operator {{TERTIARY_COLOR}}
+set -g fish_color_escape {{WARNING_COLOR}}
+set -g fish_color_autosuggestion {{TEXT_SECONDARY}}
+
+# Completion colors
+set -g fish_color_valid_path --underline
+set -g fish_color_cwd {{PRIMARY_COLOR}}
+set -g fish_color_cwd_root {{ERROR_COLOR}}
+set -g fish_color_user {{SUCCESS_COLOR}}
+set -g fish_color_host {{SECONDARY_COLOR}}
+set -g fish_color_cancel {{ERROR_COLOR}}
+
+# Pager colors
+set -g fish_pager_color_progress {{TEXT_SECONDARY}}
+set -g fish_pager_color_prefix {{PRIMARY_COLOR}}
+set -g fish_pager_color_completion {{TEXT_PRIMARY}}
+set -g fish_pager_color_description {{TEXT_SECONDARY}}
+set -g fish_pager_color_selected_background --background={{SURFACE_COLOR}}
+set -g fish_pager_color_selected_prefix {{ACCENT_COLOR}}
+set -g fish_pager_color_selected_completion {{TEXT_PRIMARY}}
+set -g fish_pager_color_selected_description {{TEXT_SECONDARY}} 

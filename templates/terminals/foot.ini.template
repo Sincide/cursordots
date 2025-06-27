@@ -1,0 +1,57 @@
+# =============================================================================
+# Foot Terminal Colors Template - Dynamic Theming
+# =============================================================================
+# Description: Only theming colors for foot terminal
+# Author: Dotfiles Dynamic Theming System
+# Usage: Include this in main foot.ini with @include
+# =============================================================================
+
+[colors]
+# Alpha/transparency for background
+alpha = 0.95
+
+# Foreground and background
+foreground = {{TEXT_PRIMARY}}
+background = {{BACKGROUND_PRIMARY}}
+
+# Normal colors (0-7)
+regular0 = {{COLOR_BLACK}}      # Black
+regular1 = {{COLOR_RED}}        # Red
+regular2 = {{COLOR_GREEN}}      # Green
+regular3 = {{COLOR_YELLOW}}     # Yellow
+regular4 = {{COLOR_BLUE}}       # Blue
+regular5 = {{COLOR_MAGENTA}}    # Magenta
+regular6 = {{COLOR_CYAN}}       # Cyan
+regular7 = {{COLOR_WHITE}}      # White
+
+# Bright colors (8-15)
+bright0 = {{COLOR_BRIGHT_BLACK}}      # Bright Black
+bright1 = {{COLOR_BRIGHT_RED}}        # Bright Red
+bright2 = {{COLOR_BRIGHT_GREEN}}      # Bright Green
+bright3 = {{COLOR_BRIGHT_YELLOW}}     # Bright Yellow
+bright4 = {{COLOR_BRIGHT_BLUE}}       # Bright Blue
+bright5 = {{COLOR_BRIGHT_MAGENTA}}    # Bright Magenta
+bright6 = {{COLOR_BRIGHT_CYAN}}       # Bright Cyan
+bright7 = {{COLOR_BRIGHT_WHITE}}      # Bright White
+
+# Selection colors
+selection-foreground = {{TEXT_PRIMARY}}
+selection-background = {{ACCENT_COLOR}}
+
+# Scrollback search
+search-box-no-match = {{ERROR_COLOR}} {{TEXT_PRIMARY}}
+search-box-match = {{SUCCESS_COLOR}} {{TEXT_PRIMARY}}
+
+# URL colors
+urls = {{SECONDARY_COLOR}}
+
+[cursor]
+color = {{CURSOR_COLOR}} {{TEXT_PRIMARY}}
+
+[csd]
+color = {{SURFACE_COLOR}}
+border-color = {{BORDER_COLOR}}
+button-color = {{TEXT_SECONDARY}}
+button-minimize-color = {{WARNING_COLOR}}
+button-maximize-color = {{SUCCESS_COLOR}}
+button-close-color = {{ERROR_COLOR}} 

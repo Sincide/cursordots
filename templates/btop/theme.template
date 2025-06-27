@@ -1,0 +1,47 @@
+# =============================================================================
+# Btop Theme Template - Dynamic Theming
+# =============================================================================
+# Description: Btop system monitor theming colors only
+# Author: Dotfiles Dynamic Theming System
+# Usage: This gets processed into btop theme format
+# =============================================================================
+
+theme[main_bg]="{{BACKGROUND_PRIMARY}}"
+theme[main_fg]="{{TEXT_PRIMARY}}"
+theme[title]="{{PRIMARY_COLOR}}"
+theme[hi_fg]="{{ACCENT_COLOR}}"
+theme[selected_bg]="{{SURFACE_COLOR}}"
+theme[selected_fg]="{{TEXT_PRIMARY}}"
+theme[inactive_fg]="{{TEXT_DISABLED}}"
+theme[graph_text]="{{TEXT_SECONDARY}}"
+theme[meter_bg]="{{BACKGROUND_SECONDARY}}"
+theme[proc_misc]="{{TERTIARY_COLOR}}"
+theme[cpu_box]="{{SECONDARY_COLOR}}"
+theme[mem_box]="{{SUCCESS_COLOR}}"
+theme[net_box]="{{WARNING_COLOR}}"
+theme[proc_box]="{{ERROR_COLOR}}"
+theme[div_line]="{{BORDER_COLOR}}"
+theme[temp_start]="{{SUCCESS_COLOR}}"
+theme[temp_mid]="{{WARNING_COLOR}}"
+theme[temp_end]="{{ERROR_COLOR}}"
+theme[cpu_start]="{{SUCCESS_COLOR}}"
+theme[cpu_mid]="{{WARNING_COLOR}}"
+theme[cpu_end]="{{ERROR_COLOR}}"
+theme[free_start]="{{SUCCESS_COLOR}}"
+theme[free_mid]="{{WARNING_COLOR}}"
+theme[free_end]="{{ERROR_COLOR}}"
+theme[cached_start]="{{SECONDARY_COLOR}}"
+theme[cached_mid]="{{ACCENT_COLOR}}"
+theme[cached_end]="{{PRIMARY_COLOR}}"
+theme[available_start]="{{TERTIARY_COLOR}}"
+theme[available_mid]="{{SECONDARY_COLOR}}"
+theme[available_end]="{{PRIMARY_COLOR}}"
+theme[used_start]="{{WARNING_COLOR}}"
+theme[used_mid]="{{ERROR_COLOR}}"
+theme[used_end]="{{ERROR_COLOR}}"
+theme[download_start]="{{SUCCESS_COLOR}}"
+theme[download_mid]="{{ACCENT_COLOR}}"
+theme[download_end]="{{PRIMARY_COLOR}}"
+theme[upload_start]="{{WARNING_COLOR}}"
+theme[upload_mid]="{{ERROR_COLOR}}"
+theme[upload_end]="{{ERROR_COLOR}}" 

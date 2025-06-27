@@ -1,0 +1,58 @@
+/* =============================================================================
+ * GTK Theme Template - Dynamic Theming
+ * =============================================================================
+ * Description: GTK theming colors only
+ * Author: Dotfiles Dynamic Theming System
+ * Usage: Include this in main gtk.css
+ * ============================================================================= */
+
+@define-color theme_fg_color {{TEXT_PRIMARY}};
+@define-color theme_bg_color {{BACKGROUND_PRIMARY}};
+@define-color theme_base_color {{SURFACE_COLOR}};
+@define-color theme_selected_bg_color {{PRIMARY_COLOR}};
+@define-color theme_selected_fg_color {{TEXT_PRIMARY}};
+@define-color theme_text_color {{TEXT_PRIMARY}};
+@define-color theme_tooltip_bg_color {{SURFACE_COLOR}};
+@define-color theme_tooltip_fg_color {{TEXT_PRIMARY}};
+
+@define-color accent_bg_color {{ACCENT_COLOR}};
+@define-color accent_fg_color {{TEXT_PRIMARY}};
+@define-color accent_color {{ACCENT_COLOR}};
+
+@define-color destructive_bg_color {{ERROR_COLOR}};
+@define-color destructive_fg_color {{TEXT_PRIMARY}};
+@define-color destructive_color {{ERROR_COLOR}};
+
+@define-color success_bg_color {{SUCCESS_COLOR}};
+@define-color success_fg_color {{TEXT_PRIMARY}};
+@define-color success_color {{SUCCESS_COLOR}};
+
+@define-color warning_bg_color {{WARNING_COLOR}};
+@define-color warning_fg_color {{TEXT_PRIMARY}};
+@define-color warning_color {{WARNING_COLOR}};
+
+@define-color error_bg_color {{ERROR_COLOR}};
+@define-color error_fg_color {{TEXT_PRIMARY}};
+@define-color error_color {{ERROR_COLOR}};
+
+@define-color window_bg_color {{BACKGROUND_PRIMARY}};
+@define-color window_fg_color {{TEXT_PRIMARY}};
+
+@define-color view_bg_color {{SURFACE_COLOR}};
+@define-color view_fg_color {{TEXT_PRIMARY}};
+
+@define-color headerbar_bg_color {{SURFACE_COLOR}};
+@define-color headerbar_fg_color {{TEXT_PRIMARY}};
+@define-color headerbar_border_color {{BORDER_COLOR}};
+@define-color headerbar_backdrop_color {{BACKGROUND_SECONDARY}};
+@define-color headerbar_shade_color {{SHADOW_COLOR}};
+
+@define-color card_bg_color {{SURFACE_COLOR}};
+@define-color card_fg_color {{TEXT_PRIMARY}};
+@define-color card_shade_color {{SHADOW_COLOR}};
+
+@define-color popover_bg_color {{SURFACE_COLOR}};
+@define-color popover_fg_color {{TEXT_PRIMARY}};
+
+@define-color shade_color {{SHADOW_COLOR}};
+@define-color scrollbar_outline_color {{BORDER_COLOR}}; 

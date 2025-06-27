@@ -1,0 +1,25 @@
+# =============================================================================
+# Dunst Theme Template - Dynamic Theming
+# =============================================================================
+# Description: Dunst notification theming colors only
+# Author: Dotfiles Dynamic Theming System
+# Usage: Include this in main dunstrc
+# =============================================================================
+
+[urgency_low]
+background = "{{BACKGROUND_SECONDARY}}"
+foreground = "{{TEXT_SECONDARY}}"
+frame_color = "{{BORDER_COLOR}}"
+highlight = "{{PRIMARY_COLOR}}"
+
+[urgency_normal]
+background = "{{SURFACE_COLOR}}"
+foreground = "{{TEXT_PRIMARY}}"
+frame_color = "{{ACCENT_COLOR}}"
+highlight = "{{SECONDARY_COLOR}}"
+
+[urgency_critical]
+background = "{{ERROR_COLOR}}"
+foreground = "{{TEXT_PRIMARY}}"
+frame_color = "{{ERROR_COLOR}}"
+highlight = "{{WARNING_COLOR}}" 

@@ -1,0 +1,16 @@
+# =============================================================================
+# Fuzzel Theme Template - Dynamic Theming
+# =============================================================================
+# Description: Fuzzel launcher theming colors only
+# Author: Dotfiles Dynamic Theming System
+# Usage: Include this in main fuzzel.ini
+# =============================================================================
+
+[colors]
+background={{BACKGROUND_PRIMARY}}dd
+text={{TEXT_PRIMARY}}ff
+match={{ACCENT_COLOR}}ff
+selection={{SURFACE_COLOR}}ff
+selection-text={{TEXT_PRIMARY}}ff
+selection-match={{SECONDARY_COLOR}}ff
+border={{BORDER_COLOR}}ff 

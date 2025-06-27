@@ -1,0 +1,182 @@
+/* =============================================================================
+ * Waybar Secondary CSS Template - Dynamic Theming
+ * =============================================================================
+ * Description: Secondary waybar theming colors only
+ * Author: Dotfiles Dynamic Theming System
+ * Usage: Include this in main waybar CSS
+ * ============================================================================= */
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 11px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: {{BACKGROUND_SECONDARY}};
+    color: {{TEXT_PRIMARY}};
+    transition-property: background-color;
+    transition-duration: 0.5s;
+    border-top: 2px solid {{ACCENT_COLOR}};
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+#workspaces {
+    margin: 0 4px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    background-color: transparent;
+    color: {{TEXT_SECONDARY}};
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+#workspaces button:hover {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+}
+
+#workspaces button.active {
+    background-color: {{PRIMARY_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    border-bottom-color: {{ACCENT_COLOR}};
+}
+
+#workspaces button.urgent {
+    background-color: {{ERROR_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    animation: blink 1s linear infinite;
+}
+
+#submap {
+    background-color: {{WARNING_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    padding: 0 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+}
+
+#window {
+    margin: 0 4px;
+    padding: 0 8px;
+    color: {{TEXT_PRIMARY}};
+    font-weight: bold;
+}
+
+#tray {
+    background-color: {{SURFACE_COLOR}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: {{WARNING_COLOR}};
+}
+
+#idle_inhibitor {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#idle_inhibitor.activated {
+    background-color: {{SUCCESS_COLOR}};
+    color: {{TEXT_PRIMARY}};
+}
+
+#pulseaudio {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#pulseaudio.muted {
+    background-color: {{ERROR_COLOR}};
+    color: {{TEXT_PRIMARY}};
+}
+
+#network {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#network.disconnected {
+    background-color: {{ERROR_COLOR}};
+    color: {{TEXT_PRIMARY}};
+}
+
+#cpu {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#memory {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#battery {
+    background-color: {{SURFACE_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#battery.charging, #battery.plugged {
+    background-color: {{SUCCESS_COLOR}};
+    color: {{TEXT_PRIMARY}};
+}
+
+#battery.critical:not(.charging) {
+    background-color: {{ERROR_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    animation: blink 1s linear infinite;
+}
+
+#battery.warning:not(.charging) {
+    background-color: {{WARNING_COLOR}};
+    color: {{TEXT_PRIMARY}};
+}
+
+#clock {
+    background-color: {{PRIMARY_COLOR}};
+    color: {{TEXT_PRIMARY}};
+    margin: 0 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+@keyframes blink {
+    to {
+        background-color: {{BACKGROUND_PRIMARY}};
+        color: {{ERROR_COLOR}};
+    }
+} 
