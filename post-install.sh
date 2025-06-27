@@ -187,6 +187,13 @@ install_essential_packages() {
         wayland
         wayland-protocols
         
+        # AMD GPU support
+        mesa
+        lib32-mesa
+        vulkan-radeon
+        lib32-vulkan-radeon
+        xf86-video-amdgpu
+        
         # Audio
         pipewire
         pipewire-alsa
@@ -288,9 +295,28 @@ install_wayland_apps() {
 install_ai_dependencies() {
     log_header "Installing AI Dependencies for LLaVA"
     
+    # Install ROCm for AMD GPU support first
+    log_info "Installing ROCm for AMD GPU acceleration..."
+    local rocm_packages=(
+        "rocm-opencl-runtime"
+        "rocm-clinfo" 
+        "rocm-cmake"
+        "rocm-device-libs"
+        "hip"
+    )
+    
+    install_packages_batch "ROCm AMD GPU Support" "${rocm_packages[@]}"
+    
+    # Add user to render and video groups for GPU access
+    log_info "Adding user to GPU access groups..."
+    sudo usermod -a -G render,video "$USER"
+    
     # Check if ollama is already installed
     if command -v ollama &> /dev/null; then
         log_info "Ollama already installed"
+        # Restart ollama to detect GPU
+        log_info "Restarting Ollama to detect AMD GPU..."
+        sudo systemctl restart ollama 2>/dev/null || true
     else
         log_info "Installing Ollama..."
         curl -fsSL https://ollama.ai/install.sh | sh
@@ -300,6 +326,12 @@ install_ai_dependencies() {
         sudo systemctl start ollama
         
         log_success "Ollama installed and started"
+    fi
+    
+    # Verify GPU detection
+    log_info "Checking GPU detection..."
+    if command -v rocm-smi &>/dev/null; then
+        rocm-smi --showproductname || log_warning "ROCm not detecting GPU - may need reboot"
     fi
     
     # Install LLaVA model
