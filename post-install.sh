@@ -267,7 +267,7 @@ install_wayland_apps() {
         dunst
         
         # Launcher
-        fuzzel
+        rofi
         
         # Wallpaper
         swww

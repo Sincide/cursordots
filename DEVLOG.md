@@ -172,6 +172,41 @@ All original requirements have been fully implemented:
 
 **Result**: Super+W and other theme keybinds should now work properly
 
+#### 2024 - Fuzzel Invalid Option Fix
+**Issue**: Wallpaper picker using invalid fuzzel option `--tab-accepts` causing "invalid option" error.
+
+**Solution**: ✅ **COMPLETED**
+- Removed `--tab-accepts` from fuzzel command arguments
+- Wallpaper picker should now launch fuzzel without errors
+
+**Files Fixed**:
+- `theme-engine/wallpaper-picker.sh` - Removed invalid fuzzel option
+
+**Result**: Wallpaper picker should now work completely without fuzzel errors
+
+#### 2024 - Switch from Fuzzel to Rofi 
+**Issue**: User requested switching from fuzzel to rofi for both launcher and wallpaper selector.
+
+**Solution**: ✅ **COMPLETED**
+- Updated wallpaper picker to prefer rofi over fuzzel (fuzzel now fallback)
+- Updated Hyprland keybinds to use rofi for launcher (`Super+D`, `Super+Space`)  
+- Updated clipboard history keybind to use rofi (`Super+C`)
+- Updated window rules to handle rofi instead of fuzzel
+- Updated post-install script to install rofi instead of fuzzel
+- Removed fuzzel symlink mapping from symlink manager
+- Updated dependency checking to prioritize rofi
+- Enhanced rofi interface with better styling and icons
+
+**Files Updated**:
+- `theme-engine/wallpaper-picker.sh` - Switched primary/fallback roles
+- `dotfiles/hyprland/modules/keybinds.conf` - Updated launcher keybinds  
+- `dotfiles/hyprland/modules/windowrules.conf` - Updated window rules
+- `scripts/management/symlink-manager.sh` - Removed fuzzel mapping
+- `post-install.sh` - Changed package from fuzzel to rofi
+- `theme-engine/theme-applier.sh` - Removed fuzzel backup paths
+
+**Result**: System now uses rofi as primary launcher with fuzzel as fallback
+
 ---
 **Status**: ✅ **PRODUCTION READY**  
 **Last Updated**: Shell compatibility issues resolved  

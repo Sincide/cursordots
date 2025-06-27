@@ -115,14 +115,13 @@ function create_theme_backup
     
     # Backup current configurations
     set config_paths \
-        ~/.config/hyprland \
         ~/.config/waybar \
+        ~/.config/hypr \
         ~/.config/dunst \
         ~/.config/kitty \
         ~/.config/foot \
         ~/.config/fish \
         ~/.config/btop \
-        ~/.config/fuzzel \
         ~/.config/gtk-2.0 \
         ~/.config/gtk-3.0 \
         ~/.config/gtk-4.0

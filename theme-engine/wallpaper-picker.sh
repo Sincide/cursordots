@@ -45,13 +45,29 @@ end
 # =============================================================================
 
 function check_dependencies
-    set required_tools fuzzel convert swww
+    set required_tools convert swww
+    set launcher_tools rofi fuzzel
     set missing_tools
+    set launcher_available false
     
+    # Check required tools
     for tool in $required_tools
         if not command -v $tool > /dev/null 2>&1
             set missing_tools $missing_tools $tool
         end
+    end
+    
+    # Check for at least one launcher
+    for tool in $launcher_tools
+        if command -v $tool > /dev/null 2>&1
+            set launcher_available true
+            log_debug "Found launcher: $tool"
+            break
+        end
+    end
+    
+    if not $launcher_available
+        set missing_tools $missing_tools "rofi or fuzzel"
     end
     
     if test (count $missing_tools) -gt 0
@@ -59,8 +75,9 @@ function check_dependencies
         log_error "Please install missing dependencies:"
         for tool in $missing_tools
             switch $tool
-                case fuzzel
-                    echo "  pacman -S fuzzel"
+                case "rofi or fuzzel"
+                    echo "  pacman -S rofi  # preferred"
+                    echo "  # OR pacman -S fuzzel  # fallback"
                 case convert
                     echo "  pacman -S imagemagick"
                 case swww
@@ -184,7 +201,7 @@ function find_wallpapers
 end
 
 # =============================================================================
-# Fuzzel Interface
+# Rofi Interface (Primary)
 # =============================================================================
 
 function create_fuzzel_entries
@@ -217,7 +234,14 @@ function create_fuzzel_entries
     echo $entries_file
 end
 
-function launch_fuzzel
+function launch_fuzzel_fallback
+    log_info "Rofi unavailable, falling back to fuzzel..."
+    
+    # Check if fuzzel is available
+    if not command -v fuzzel > /dev/null 2>&1
+        log_error "Fuzzel fallback not available"
+        return 1
+    end
     set entries_file (create_fuzzel_entries)
     
     log_info "Launching fuzzel wallpaper picker..."
@@ -229,7 +253,6 @@ function launch_fuzzel
         --lines $FUZZEL_HEIGHT \
         --prompt "Select wallpaper: " \
         --placeholder "Type to search wallpapers..." \
-        --tab-accepts \
         --anchor center \
         --font "JetBrainsMono Nerd Font:size=12" \
         --background-color 282828ee \
@@ -263,43 +286,46 @@ function launch_fuzzel
 end
 
 # =============================================================================
-# Rofi Fallback Interface
+# Fuzzel Fallback Interface
 # =============================================================================
 
-function launch_rofi_fallback
-    log_info "Fuzzel unavailable, falling back to rofi..."
-    
-    # Check if rofi is available
-    if not command -v rofi > /dev/null 2>&1
-        log_error "Rofi fallback not available"
-        return 1
-    end
+function launch_rofi
+    log_info "Launching rofi wallpaper picker..."
     
     set wallpaper_list (find_wallpapers)
     
-    # Create display entries for rofi
+    # Create display entries for rofi with preview paths
     set display_entries
+    set wallpaper_paths_temp "$CACHE_DIR/temp/wallpaper_paths.txt"
+    echo "" > $wallpaper_paths_temp
+    
     for wallpaper in $wallpaper_list
         set basename_name (basename $wallpaper)
         set display_name (string replace -r '\.[^.]*$' '' $basename_name)
         set display_entries $display_entries $display_name
+        echo $wallpaper >> $wallpaper_paths_temp
     end
     
-    # Launch rofi
+    # Launch rofi with enhanced styling
     set selected_index (printf "%s\n" $display_entries | rofi \
         -dmenu \
         -i \
-        -p "Select wallpaper" \
-        -theme-str 'window {width: 50%; height: 60%;}' \
+        -p "󰋩 Select wallpaper" \
+        -theme-str 'window {width: 60%; height: 70%;}' \
+        -theme-str 'listview {columns: 2; lines: 8;}' \
+        -theme-str 'element {padding: 8px;}' \
+        -theme-str 'element-text {font: "JetBrainsMono Nerd Font 12";}' \
         -format d)
     
     if test -z "$selected_index"
         log_info "No wallpaper selected"
+        rm -f $wallpaper_paths_temp
         return 1
     end
     
     # Get wallpaper path by index
-    set wallpaper_path $wallpaper_list[$selected_index]
+    set wallpaper_path (sed -n "$selected_index"p $wallpaper_paths_temp)
+    rm -f $wallpaper_paths_temp
     
     if test -z "$wallpaper_path" -o ! -f "$wallpaper_path"
         log_error "Invalid wallpaper selection index: $selected_index"
@@ -393,10 +419,10 @@ function main
     
     # Launch wallpaper picker interface
     set selected_wallpaper
-    if command -v fuzzel > /dev/null 2>&1
-        set selected_wallpaper (launch_fuzzel)
+    if command -v rofi > /dev/null 2>&1
+        set selected_wallpaper (launch_rofi)
     else
-        set selected_wallpaper (launch_rofi_fallback)
+        set selected_wallpaper (launch_fuzzel_fallback)
     end
     
     # Check if wallpaper was selected

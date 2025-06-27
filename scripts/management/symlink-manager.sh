@@ -25,7 +25,6 @@ SYMLINK_MAPPINGS=(
     "foot:.config/foot"
     "fish:.config/fish"
     "dunst:.config/dunst"
-    "fuzzel:.config/fuzzel"
     "btop:.config/btop"
     "gtk-3.0:.config/gtk-3.0"
     "../theme-engine:.config/scripts"
