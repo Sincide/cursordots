@@ -12,7 +12,7 @@
 # Set script directory and configuration paths
 set SCRIPT_DIR (dirname (realpath (status --current-filename)))
 set DOTFILES_ROOT (dirname $SCRIPT_DIR)
-set WALLPAPERS_DIR "$DOTFILES_ROOT/wallpapers"
+set WALLPAPERS_DIR "$HOME/Pictures/Wallpapers"
 set THUMBNAILS_DIR "$DOTFILES_ROOT/cache/thumbnails"
 set CACHE_DIR "$DOTFILES_ROOT/cache"
 set CURRENT_WALLPAPER "$WALLPAPERS_DIR/current.jpg"

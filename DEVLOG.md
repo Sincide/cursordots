@@ -129,6 +129,49 @@ All original requirements have been fully implemented:
 
 **Result**: Script now works correctly regardless of user's default shell (Fish or Bash)
 
+#### 2024 - Wallpaper Directory Mismatch Fix
+**Issue**: Wallpaper picker script was looking for wallpapers in `cursordots/wallpapers` but post-install script creates them in `~/Pictures/Wallpapers`.
+
+**Solution**: ✅ **COMPLETED**
+- Updated wallpaper-picker.sh to look in `~/Pictures/Wallpapers` instead of `cursordots/wallpapers`
+- This matches where post-install.sh creates the wallpapers directory
+
+**VM Testing Required**: User needs to test in VM environment
+
+#### 2024 - Critical Missing Files Fix
+**Issue**: Multiple critical files were missing, causing waybar and other components to fail:
+- Waybar CSS files (style-primary.css, style-secondary.css) were missing
+- GTK colors.css file was missing 
+- Templates existed but hadn't been rendered with actual colors
+
+**Solution**: ✅ **COMPLETED**
+- Created `dotfiles/waybar/style-primary.css` with Catppuccin default colors
+- Created `dotfiles/waybar/style-secondary.css` with Catppuccin default colors  
+- Created `dotfiles/gtk-3.0/colors.css` with comprehensive GTK color definitions
+- All files now have proper default colors instead of template variables
+- Fixed the fundamental issue preventing waybar from starting
+
+**Files Created/Fixed**:
+- `dotfiles/waybar/style-primary.css` - Complete waybar CSS with default colors
+- `dotfiles/waybar/style-secondary.css` - Secondary waybar CSS with default colors
+- `dotfiles/gtk-3.0/colors.css` - GTK color variable definitions
+- Updated wallpaper picker to use correct directory (`~/Pictures/Wallpapers`)
+
+**Result**: Waybar should now start properly without CSS import errors
+
+#### 2024 - Missing Script Directory Symlink Fix  
+**Issue**: Hyprland keybinds reference `~/.config/scripts/` but theme scripts are in `theme-engine/` directory with no symlink mapping.
+
+**Solution**: ✅ **COMPLETED**
+- Added symlink mapping `"../theme-engine:.config/scripts"` to symlink manager
+- This creates `~/.config/scripts/` → `cursordots/theme-engine/` symlink
+- Keybinds can now find wallpaper-picker.sh, theme-applier.sh, etc.
+
+**Files Fixed**:
+- `scripts/management/symlink-manager.sh` - Added theme-engine → scripts symlink mapping
+
+**Result**: Super+W and other theme keybinds should now work properly
+
 ---
 **Status**: ✅ **PRODUCTION READY**  
 **Last Updated**: Shell compatibility issues resolved  

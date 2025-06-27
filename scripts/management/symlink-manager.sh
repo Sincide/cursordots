@@ -28,6 +28,7 @@ SYMLINK_MAPPINGS=(
     "fuzzel:.config/fuzzel"
     "btop:.config/btop"
     "gtk-3.0:.config/gtk-3.0"
+    "../theme-engine:.config/scripts"
     "fonts/.fonts:.fonts"
 )
 
